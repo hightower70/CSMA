@@ -25,7 +25,7 @@ namespace CSMA
         /// <summary>
         /// Arrays for internal storage of U and V.
         /// </summary>
-        private double[][] U, V;
+        private double[,] U, V;
 
         /// <summary>
         /// Array for internal storage of singular values.
@@ -50,7 +50,7 @@ namespace CSMA
         {
             // Derived from LINPACK code.
             // Initialize.
-            double[][] A = Arg.getArrayCopy();
+            double[,] A = Arg.getArrayCopy();
             m = Arg.rowDimension;
             n = Arg.colDimension;
 
@@ -59,13 +59,8 @@ namespace CSMA
             //if (m<n) { throw new ArgumentException("CSMA SVD only works for m >= n"); }
             int nu = Math.Min(m,n);
             s = new double [Math.Min(m+1,n)];
-            U = new double [m][];
-            for(int i = 0; i < m; i++)
-                U[i] = new double[nu];
-
-            V = new double [n][];
-            for(int i = 0; i < n; i++)
-                V[i] = new double[n];
+            U = new double [m,nu];
+            V = new double [n,n];
 
             double[] e = new double [n];
             double[] work = new double [m];
@@ -87,20 +82,20 @@ namespace CSMA
                     s[k] = 0;
                     for (int i = k; i < m; i++) 
                     {
-                        s[k] = Maths.Hypot(s[k],A[i][k]);
+                        s[k] = Maths.Hypot(s[k],A[i,k]);
                     }
                     if (s[k] != 0.0) 
                     {
-                        if (A[k][k] < 0.0) 
+                        if (A[k,k] < 0.0) 
                         {
                             s[k] = -s[k];
                         }
 
                         for (int i = k; i < m; i++) 
                         {
-                            A[i][k] /= s[k];
+                            A[i,k] /= s[k];
                         }
-                        A[k][k] += 1.0;
+                        A[k,k] += 1.0;
                     }
                     s[k] = -s[k];
                 }
@@ -113,19 +108,19 @@ namespace CSMA
                         double t = 0;
                         for (int i = k; i < m; i++) 
                         {
-                            t += A[i][k]*A[i][j];
+                            t += A[i,k]*A[i,j];
                         }
-                        t = -t/A[k][k];
+                        t = -t/A[k,k];
                         
                         for (int i = k; i < m; i++) 
                         {
-                            A[i][j] += t*A[i][k];
+                            A[i,j] += t*A[i,k];
                         }
                     }
 
                     // Place the k-th row of A into e for the
                     // subsequent calculation of the row transformation.
-                    e[j] = A[k][j];
+                    e[j] = A[k,j];
                 }
 
                 if (wantu & (k < nct)) 
@@ -133,7 +128,7 @@ namespace CSMA
                     // Place the transformation in U for subsequent back multiplication.
                     for (int i = k; i < m; i++) 
                     {
-                        U[i][k] = A[i][k];
+                        U[i,k] = A[i,k];
                     }
                 }
 
@@ -173,7 +168,7 @@ namespace CSMA
                         {
                             for (int i = k+1; i < m; i++) 
                             {
-                                work[i] += e[j]*A[i][j];
+                                work[i] += e[j]*A[i,j];
                             }
                         }
                         for (int j = k+1; j < n; j++) 
@@ -181,7 +176,7 @@ namespace CSMA
                             double t = -e[j]/e[k+1];
                             for (int i = k+1; i < m; i++) 
                             {
-                                A[i][j] += t*work[i];
+                                A[i,j] += t*work[i];
                             }
                         }
                     }
@@ -191,7 +186,7 @@ namespace CSMA
                         // Place the transformation in V for subsequent back multiplication.
                         for (int i = k+1; i < n; i++) 
                         {
-                            V[i][k] = e[i];
+                            V[i,k] = e[i];
                         }
                     }
                 }
@@ -202,7 +197,7 @@ namespace CSMA
             int p = Math.Min(n,m+1);
             if (nct < n) 
             {
-                s[nct] = A[nct][nct];
+                s[nct] = A[nct,nct];
             }
             
             if (m < p) 
@@ -212,7 +207,7 @@ namespace CSMA
             
             if (nrt+1 < p) 
             {
-                e[nrt] = A[nrt][p-1];
+                e[nrt] = A[nrt,p-1];
             }
             e[p-1] = 0.0;
 
@@ -223,9 +218,9 @@ namespace CSMA
                 {
                     for (int i = 0; i < m; i++) 
                     {
-                        U[i][j] = 0.0;
+                        U[i,j] = 0.0;
                     }
-                    U[j][j] = 1.0;
+                    U[j,j] = 1.0;
                 }
                 for (int k = nct-1; k >= 0; k--)
                 {
@@ -236,33 +231,33 @@ namespace CSMA
                             double t = 0;
                             for (int i = k; i < m; i++) 
                             {
-                                t += U[i][k]*U[i][j];
+                                t += U[i,k]*U[i,j];
                             }
-                            t = -t/U[k][k];
+                            t = -t/U[k,k];
                             for (int i = k; i < m; i++) 
                             {
-                                U[i][j] += t*U[i][k];
+                                U[i,j] += t*U[i,k];
                             }
                         }
 
                         for (int i = k; i < m; i++ ) 
                         {
-                            U[i][k] = -U[i][k];
+                            U[i,k] = -U[i,k];
                         }
-                        U[k][k] = 1.0 + U[k][k];
+                        U[k,k] = 1.0 + U[k,k];
                     
                         for (int i = 0; i < k-1; i++) 
                         {
-                            U[i][k] = 0.0;
+                            U[i,k] = 0.0;
                         }
                     } 
                     else 
                     {
                         for (int i = 0; i < m; i++) 
                         {
-                            U[i][k] = 0.0;
+                            U[i,k] = 0.0;
                         }
-                        U[k][k] = 1.0;
+                        U[k,k] = 1.0;
                     }
                 }
             }
@@ -279,20 +274,20 @@ namespace CSMA
                             double t = 0;
                             for (int i = k+1; i < n; i++) 
                             {
-                                t += V[i][k]*V[i][j];
+                                t += V[i,k]*V[i,j];
                             }
-                            t = -t/V[k+1][k];
+                            t = -t/V[k+1,k];
                             for (int i = k+1; i < n; i++) 
                             {
-                                V[i][j] += t*V[i][k];
+                                V[i,j] += t*V[i,k];
                             }
                         }
                     }
                     for (int i = 0; i < n; i++) 
                     {
-                        V[i][k] = 0.0;
+                        V[i,k] = 0.0;
                     }
-                    V[k][k] = 1.0;
+                    V[k,k] = 1.0;
                 }
             }
 
@@ -391,9 +386,9 @@ namespace CSMA
                             {
                                 for (int i = 0; i < n; i++) 
                                 {
-                                    t = cs*V[i][j] + sn*V[i][p-1];
-                                    V[i][p-1] = -sn*V[i][j] + cs*V[i][p-1];
-                                    V[i][j] = t;
+                                    t = cs*V[i,j] + sn*V[i,p-1];
+                                    V[i,p-1] = -sn*V[i,j] + cs*V[i,p-1];
+                                    V[i,j] = t;
                                 }
                             }
                         }
@@ -417,9 +412,9 @@ namespace CSMA
                             {
                                 for (int i = 0; i < m; i++) 
                                 {
-                                    t = cs*U[i][j] + sn*U[i][k-1];
-                                    U[i][k-1] = -sn*U[i][j] + cs*U[i][k-1];
-                                    U[i][j] = t;
+                                    t = cs*U[i,j] + sn*U[i,k-1];
+                                    U[i,k-1] = -sn*U[i,j] + cs*U[i,k-1];
+                                    U[i,j] = t;
                                 }
                             }
                         }
@@ -471,9 +466,9 @@ namespace CSMA
                             {
                                 for (int i = 0; i < n; i++) 
                                 {
-                                    t = cs*V[i][j] + sn*V[i][j+1];
-                                    V[i][j+1] = -sn*V[i][j] + cs*V[i][j+1];
-                                    V[i][j] = t;
+                                    t = cs*V[i,j] + sn*V[i,j+1];
+                                    V[i,j+1] = -sn*V[i,j] + cs*V[i,j+1];
+                                    V[i,j] = t;
                                 }
                             }
                             t = Maths.Hypot(f,g);
@@ -488,9 +483,9 @@ namespace CSMA
                             {
                                 for (int i = 0; i < m; i++) 
                                 {
-                                    t = cs*U[i][j] + sn*U[i][j+1];
-                                    U[i][j+1] = -sn*U[i][j] + cs*U[i][j+1];
-                                    U[i][j] = t;
+                                    t = cs*U[i,j] + sn*U[i,j+1];
+                                    U[i,j+1] = -sn*U[i,j] + cs*U[i,j+1];
+                                    U[i,j] = t;
                                 }
                             }
                         }
@@ -510,7 +505,7 @@ namespace CSMA
                             {
                                 for (int i = 0; i <= pp; i++) 
                                 {
-                                    V[i][k] = -V[i][k];
+                                    V[i,k] = -V[i,k];
                                 }
                             }
                         }
@@ -529,14 +524,14 @@ namespace CSMA
                             {
                                 for (int i = 0; i < n; i++) 
                                 {
-                                    t = V[i][k+1]; V[i][k+1] = V[i][k]; V[i][k] = t;
+                                    t = V[i,k+1]; V[i,k+1] = V[i,k]; V[i,k] = t;
                                 }
                             }
                             if (wantu && (k < m-1)) 
                             {
                                 for (int i = 0; i < m; i++) 
                                 {
-                                    t = U[i][k+1]; U[i][k+1] = U[i][k]; U[i][k] = t;
+                                    t = U[i,k+1]; U[i,k+1] = U[i,k]; U[i,k] = t;
                                 }
                             }
                             k++;
@@ -584,12 +579,12 @@ namespace CSMA
         /// <returns>S</returns>
         public Matrix getS () {
             Matrix X = new Matrix(n,n);
-            double[][] S = X.getArray();
+            double[,] S = X.getArray();
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < n; j++) {
-                S[i][j] = 0.0;
+                S[i,j] = 0.0;
                 }
-                S[i][i] = this.s[i];
+                S[i,i] = this.s[i];
             }
             return X;
         }
@@ -633,7 +628,7 @@ namespace CSMA
 
         #endregion
 
-        private static long serialVersionUID = 1;
+        //private static long serialVersionUID = 1;
     }
 
 }
