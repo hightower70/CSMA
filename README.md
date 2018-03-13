@@ -1,5 +1,12 @@
 # CSMA
-Port of JAMA to C#
+Port of Java Matrix Package (JAMA) to C# .
+
+It has the basic Matrix class, with overloaded operators and contains several decompisition methods:
+* Cholesky Decomposition of symmetric, positive definite matrices
+* LU Decomposition (Gaussian elimination) of rectangular matrices
+* QR Decomposition of rectangular matrices
+* Eigenvalue Decomposition of both symmetric and nonsymmetric square matrices
+* Singular Value Decomposition of rectangular matrices
 
 This repository if a fork of Tim Felty's port of the NIST JAMA library to C#.
 I have removed the jagged array storage and changed to unifrom storage. I've also added some overloaded operators, functions (ToString, Equals, GetHashCode) which are common in c# classes.
