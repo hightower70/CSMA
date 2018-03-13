@@ -1,7 +1,7 @@
 # CSMA
 Port of Java Matrix Package (JAMA) to C# .
 
-It has the basic Matrix class, with overloaded operators and contains several decompisition methods:
+It has the basic Matrix class, with overloaded operators and contains several decomposition methods:
 * Cholesky Decomposition of symmetric, positive definite matrices
 * LU Decomposition (Gaussian elimination) of rectangular matrices
 * QR Decomposition of rectangular matrices
